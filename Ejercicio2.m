@@ -30,6 +30,7 @@ function [x_jacobi, x_gs, eig_J] = solve_system(A, b, x0, num_iter)
     T_gs = -(D + L)\U;
     
     eig_J = eig(T_jacobi); % Valores propios de Jacobi
+    eig_gs = eig(T_gs); % Valores propios de Gauss-Seidel
     
     % Método de Jacobi
     x_jacobi = x0;
@@ -53,4 +54,5 @@ function [x_jacobi, x_gs, eig_J] = solve_system(A, b, x0, num_iter)
     
     % Imprimir valores propios
     fprintf('\nValores propios de Jacobi: [%f, %f]\n', eig_J(1), eig_J(2));
+    fprintf('\nValores propios de Gauss-Seidel: [%f, %f]\n', eig_gs(1), eig_gs(2));
 end
