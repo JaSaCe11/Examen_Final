@@ -1,55 +1,67 @@
-% Ejercicio 3 - Método de la Potencia
+% Ejercicio 3 - Método de la Potencia con y sin escalamiento
 clc;
 clear;
 
-% Matriz de ejemplo para el ejercicio
-A = [4, 1; 2, 3]; % Puedes reemplazar con la matriz del ejercicio 15
+% Definición de la matriz A y el vector inicial
+A = [3, 0, 0;
+     1, -1, 0;
+     0, 2, 8];
 
-% Parámetros
-tol = 1e-6; % Tolerancia
-max_iter = 100; % Máximo número de iteraciones
+x = [1; 1; 1]; % Vector inicial
+n_iter = 4; % Número de iteraciones
+eigenvalues = []; % Almacenar valores propios dominantes en cada iteración
 
-% Parte i) Implementación del Método de la Potencia
-fprintf('Método de la Potencia sin Escalamiento:\n');
-[lambda_no_scaling, v_no_scaling, iter_no_scaling] = power_method(A, tol, max_iter, false);
-fprintf('Valor Propio: %.6f, Vector Propio: [%f, %f], Iteraciones: %d\n', ...
-    lambda_no_scaling, v_no_scaling(1), v_no_scaling(2), iter_no_scaling);
+fprintf('Con escalamiento\n');
+fprintf('Iteración\tVector Propio Aproximado\t\tValor Propio Dominante\n');
+fprintf('-----------------------------------------------------------\n');
 
-fprintf('\nMétodo de la Potencia con Escalamiento:\n');
-[lambda_scaling, v_scaling, iter_scaling] = power_method(A, tol, max_iter, true);
-fprintf('Valor Propio: %.6f, Vector Propio: [%f, %f], Iteraciones: %d\n', ...
-    lambda_scaling, v_scaling(1), v_scaling(2), iter_scaling);
-
-% Parte ii) Resolver ejercicio 15
-fprintf('\nEjercicio 15 (usando método con escalamiento):\n');
-A_ex15 = [6, 2, 1; 2, 3, 1; 1, 1, 1]; % Matriz del ejercicio 15
-[lambda_ex15, v_ex15, iter_ex15] = power_method(A_ex15, tol, max_iter, true);
-fprintf('Valor Propio: %.6f, Vector Propio: [%f, %f, %f], Iteraciones: %d\n', ...
-    lambda_ex15, v_ex15(1), v_ex15(2), v_ex15(3), iter_ex15);
-
-% Función Método de la Potencia
-function [lambda, v, iter] = power_method(A, tol, max_iter, scaling)
-    n = size(A, 1);
-    v = rand(n, 1); % Vector inicial aleatorio
-    v = v / norm(v); % Normalizar
+for k = 1:n_iter
+    % Multiplicación matriz por vector
+    x_new = A * x;
     
-    lambda_old = 0; % Inicializar valor propio
-    for iter = 1:max_iter
-        w = A * v;
-        if scaling
-            % Escalamiento
-            lambda = max(abs(w));
-            v = w / lambda;
-        else
-            % Sin escalamiento
-            lambda = dot(v, w);
-            v = w / norm(w);
-        end
-        
-        % Criterio de convergencia
-        if abs(lambda - lambda_old) < tol
-            break;
-        end
-        lambda_old = lambda;
-    end
+    % Escalamiento: calcular el valor propio dominante aproximado
+    lambda_max = max(abs(x_new)); 
+    eigenvalues = [eigenvalues; lambda_max];
+    
+    % Normalización del vector
+    x_new = x_new / lambda_max;
+    
+    % Imprimir resultados de esta iteración
+    fprintf('%d\t\t[%.6f, %.6f, %.6f]\t%.6f\n', ...
+        k, x_new(1), x_new(2), x_new(3), lambda_max);
+    
+    % Actualizar el vector
+    x = x_new;
 end
+
+% Resultados finales
+fprintf('\nValor Propio Dominante: %.6f\n', lambda_max);
+fprintf('Vector Propio Asociado: [%.6f, %.6f, %.6f]\n', x(1), x(2), x(3));
+
+fprintf('\n');
+fprintf('Sin escalamiento\n');
+fprintf('Iteración\tVector Propio Aproximado\t\tValor Propio Aproximado\n');
+fprintf('-----------------------------------------------------------\n');
+
+for k = 1:n_iter
+    % Multiplicación matriz por vector
+    x_new = A * x;
+    
+    % Calcular valor propio aproximado (sin escalamiento)
+    lambda_approx = (x_new' * x) / (x' * x); % Rayleigh quotient
+    eigenvalues = [eigenvalues; lambda_approx];
+    
+    % Normalización para evitar desbordamientos numéricos
+    x_new = x_new / norm(x_new);
+    
+    % Imprimir resultados de esta iteración
+    fprintf('%d\t\t[%.6f, %.6f, %.6f]\t%.6f\n', ...
+        k, x_new(1), x_new(2), x_new(3), lambda_approx);
+    
+    % Actualizar el vector
+    x = x_new;
+end
+
+% Resultados finales
+fprintf('\nValor Propio Aproximado Final: %.6f\n', lambda_approx);
+fprintf('Vector Propio Asociado: [%.6f, %.6f, %.6f]\n', x(1), x(2), x(3));
